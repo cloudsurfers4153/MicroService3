@@ -1,24 +1,22 @@
 from __future__ import annotations
 
 import os
-import socket
-from datetime import datetime
 
 from typing import Dict, List
 from uuid import UUID
 
-from fastapi import FastAPI, HTTPException
-from fastapi import Query, Path
+from fastapi import FastAPI
+from fastapi import Query
 from typing import Optional
 
-from models.person import PersonCreate, PersonRead, PersonUpdate
+from models.review import ReviewCreate, ReviewRead, ReviewUpdate
 
 port = int(os.environ.get("FASTAPIPORT", 8000))
 
 # -----------------------------------------------------------------------------
 # Fake in-memory "databases"
 # -----------------------------------------------------------------------------
-persons: Dict[UUID, PersonRead] = {}
+reviews: Dict[UUID, ReviewRead] = {}
 
 app = FastAPI(
     title="Interaction API",
@@ -27,14 +25,14 @@ app = FastAPI(
 )
 
 # -----------------------------------------------------------------------------
-# Person endpoints
+# Review endpoints
 # -----------------------------------------------------------------------------
-@app.post("/persons", response_model=PersonRead, status_code=201)
-def create_person(person: PersonCreate):
+@app.post("/reviews", response_model=ReviewRead, status_code=201)
+def create_review(review: ReviewCreate):
     return {"message": "NOT IMPLEMENTED - POST"}
 
-@app.get("/persons", response_model=List[PersonRead])
-def list_persons(
+@app.get("/reviews", response_model=List[ReviewRead])
+def list_reviews(
     uni: Optional[str] = Query(None, description="Filter by Columbia UNI"),
     first_name: Optional[str] = Query(None, description="Filter by first name"),
     last_name: Optional[str] = Query(None, description="Filter by last name"),
@@ -46,15 +44,15 @@ def list_persons(
 ):
     return {"message": "NOT IMPLEMENTED - GET"}
 
-@app.get("/persons/{person_id}", response_model=PersonRead)
-def get_person(person_id: UUID):
+@app.get("/reviews/{review_id}", response_model=ReviewRead)
+def get_review(review_id: UUID):
     return {"message": "NOT IMPLEMENTED - GET by id"}
 
-@app.patch("/persons/{person_id}", response_model=PersonRead)
-def update_person(person_id: UUID, update: PersonUpdate):
+@app.patch("/reviews/{review_id}", response_model=ReviewRead)
+def update_review(review_id: UUID, update: ReviewUpdate):
     return {"message": "NOT IMPLEMENTED - Patch by id"}
 
-@app.delete("/persons/{person_id}", status_code=204)
+@app.delete("/reviews/{review_id}", status_code=204)
 def delete_student(student_id: UUID):
     return {"message": "NOT IMPLEMENTED - DELETE by id"}
 
