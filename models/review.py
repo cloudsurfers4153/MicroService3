@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, EmailStr, StringConstraints
 
 
 # Review ID: rev + 5 digits (e.g., rev12345)
-ReviewIDType = Annotated[str, StringConstraints(pattern=r"^rev-\d{5}$")]
+ReviewIDType = Annotated[str, StringConstraints(pattern=r"^rev\d{5}$")]
 
 
 class ReviewBase(BaseModel):
@@ -34,7 +34,7 @@ class ReviewBase(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "id": "rev0001",
+                    "id": "rev00001",
                     "rating": 5,
                     "comment": "This movie is amazing!",
                 }
@@ -49,7 +49,7 @@ class ReviewCreate(ReviewBase):
         "json_schema_extra": {
             "examples": [
                 {
-                    "id": "rev0002",
+                    "id": "rev00002",
                     "rating": 3,
                     "comment": "The movie’s storyline is a bit old-fashioned."
                 }
@@ -93,6 +93,11 @@ class ReviewUpdate(BaseModel):
 
 class ReviewRead(ReviewBase):
     """Complete review data for reading/displaying."""
+    uid: UUID = Field(
+        default_factory=uuid4,
+        description="Server-generated Review ID.",
+        json_schema_extra={"example": "99999999-9999-4999-8999-999999999999"},
+    )
     created_at: datetime = Field(
         default_factory=datetime.utcnow,
         description="Creation timestamp (UTC).",
@@ -108,6 +113,7 @@ class ReviewRead(ReviewBase):
         "json_schema_extra": {
             "examples": [
                 {
+                    "uid": "99999999-9999-4999-8999-999999999999",
                     "id": "rev12345",
                     "rating": 5,
                     "comment": "This movie is absolutely fantastic! Great acting and storyline.",

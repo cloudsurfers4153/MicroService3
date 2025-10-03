@@ -33,14 +33,9 @@ def create_review(review: ReviewCreate):
 
 @app.get("/reviews", response_model=List[ReviewRead])
 def list_reviews(
-    uni: Optional[str] = Query(None, description="Filter by Columbia UNI"),
-    first_name: Optional[str] = Query(None, description="Filter by first name"),
-    last_name: Optional[str] = Query(None, description="Filter by last name"),
-    email: Optional[str] = Query(None, description="Filter by email"),
-    phone: Optional[str] = Query(None, description="Filter by phone number"),
-    birth_date: Optional[str] = Query(None, description="Filter by date of birth (YYYY-MM-DD)"),
-    city: Optional[str] = Query(None, description="Filter by city of at least one address"),
-    country: Optional[str] = Query(None, description="Filter by country of at least one address"),
+    id: Optional[str] = Query(None, description="Filter by Review ID"),
+    rating: Optional[int] = Query(None, description="Filter by rating"),
+    comment: Optional[str] = Query(None, description="Filter by comment")
 ):
     return {"message": "NOT IMPLEMENTED - GET"}
 
@@ -53,7 +48,7 @@ def update_review(review_id: UUID, update: ReviewUpdate):
     return {"message": "NOT IMPLEMENTED - Patch by id"}
 
 @app.delete("/reviews/{review_id}", status_code=204)
-def delete_student(student_id: UUID):
+def delete_review(review_id: UUID):
     return {"message": "NOT IMPLEMENTED - DELETE by id"}
 
 # -----------------------------------------------------------------------------
@@ -69,4 +64,4 @@ def root():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=port, reload=True)
