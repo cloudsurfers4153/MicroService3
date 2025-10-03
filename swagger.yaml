@@ -1,0 +1,322 @@
+openapi: 3.0.3
+info:
+  title: Review API
+  description: Demo FastAPI app using Pydantic v2 models for Interaction
+  version: 0.1.0
+servers:
+  - url: http://localhost:8000
+    description: Development server
+
+paths:
+
+  /reviews:
+    post:
+      summary: Create a new review
+      description: Create a new movie review with rating and comment
+      tags:
+        - Reviews
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreate'
+            examples:
+              example1:
+                summary: Example review creation
+                value:
+                  id: "rev00001"
+                  rating: 5
+                  comment: "This movie is absolutely fantastic! Great acting and storyline."
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewRead'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+    get:
+      summary: List reviews
+      description: Get a list of movie reviews with optional filtering
+      tags:
+        - Reviews
+      parameters:
+        - name: id
+          in: query
+          description: Filter by Review ID
+          required: false
+          schema:
+            type: string
+            pattern: '^rev\d{5}$'
+        - name: rating
+          in: query
+          description: Filter by rating
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+        - name: comment
+          in: query
+          description: Filter by comment
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewRead'
+
+  /reviews/{review_id}:
+    get:
+      summary: Get a specific review
+      description: Retrieve a review by its ID
+      tags:
+        - Reviews
+      parameters:
+        - name: review_id
+          in: path
+          description: Unique identifier for a review
+          required: true
+          schema:
+            type: string
+            pattern: '^rev\d{5}$'
+      responses:
+        '200':
+          description: Review found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewRead'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+    patch:
+      summary: Update a review
+      description: Partially update a review (only provided fields will be updated)
+      tags:
+        - Reviews
+      parameters:
+        - name: review_id
+          in: path
+          description: Unique identifier for a review
+          required: true
+          schema:
+            type: string
+            pattern: '^rev\d{5}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewUpdate'
+            examples:
+              example1:
+                summary: Update rating and comment
+                value:
+                  rating: 4
+                  comment: "Updated my opinion - it's actually quite good!"
+              example2:
+                summary: Update only rating
+                value:
+                  rating: 2
+              example3:
+                summary: Update only comment
+                value:
+                  comment: "Changed my mind about this movie."
+      responses:
+        '200':
+          description: Review updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewRead'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+    delete:
+      summary: Delete a review
+      description: Delete a review by its ID
+      tags:
+        - Reviews
+      parameters:
+        - name: review_id
+          in: path
+          description: Unique identifier for a review
+          required: true
+          schema:
+            type: string
+            pattern: '^rev\d{5}$'
+      responses:
+        '204':
+          description: Review deleted successfully
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+components:
+  schemas:
+    ReviewBase:
+      type: object
+      required:
+        - id
+        - rating
+        - comment
+      properties:
+        id:
+          type: string
+          pattern: '^rev\d{5}$'
+          description: Every review has an unique id
+          example: "rev12345"
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Users can rate a movie from 1 to 5
+          example: 5
+        comment:
+          type: string
+          description: User's comment about the movie
+          example: "This movie is amazing."
+      example:
+        id: "rev00001"
+        rating: 5
+        comment: "This movie is amazing!"
+
+    ReviewCreate:
+      allOf:
+        - $ref: '#/components/schemas/ReviewBase'
+      example:
+        id: "rev00002"
+        rating: 3
+        comment: "The movie's storyline is a bit old-fashioned."
+
+    ReviewUpdate:
+      type: object
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: A new rating for the movie (1-5)
+          example: 4
+        comment:
+          type: string
+          description: An updated comment for the movie
+          example: "Actually, it was just okay."
+      example:
+        rating: 4
+        comment: "Updated my opinion - it's actually quite good!"
+
+    ReviewRead:
+      allOf:
+        - $ref: '#/components/schemas/ReviewBase'
+      type: object
+      required:
+        - uid
+        - id
+        - rating
+        - comment
+        - created_at
+        - updated_at
+      properties:
+        uid:
+          type: string
+          format: uuid
+          description: Server-generated Review UUID
+          example: "99999999-9999-4999-8999-999999999999"
+        id:
+          type: string
+          pattern: '^rev\d{5}$'
+          description: Every review has an unique id
+          example: "rev12345"
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Users can rate a movie from 1 to 5
+          example: 5
+        comment:
+          type: string
+          description: User's comment about the movie
+          example: "This movie is absolutely fantastic! Great acting and storyline."
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp (UTC)
+          example: "2025-01-15T10:20:30Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp (UTC)
+          example: "2025-01-16T12:00:00Z"
+      example:
+        uid: "99999999-9999-4999-8999-999999999999"
+        id: "rev12345"
+        rating: 5
+        comment: "This movie is absolutely fantastic! Great acting and storyline."
+        created_at: "2025-01-15T10:20:30Z"
+        updated_at: "2025-01-16T12:00:00Z"
+
+    ValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string
+      example:
+        detail:
+          - loc: ["body", "rating"]
+            msg: "ensure this value is greater than or equal to 1"
+            type: "value_error.number.not_ge"
+
+    NotFoundError:
+      type: object
+      properties:
+        detail:
+          type: string
+      example:
+        detail: "Review not found"
+
+tags:
+  - name: Reviews
+    description: Movie review management operations
