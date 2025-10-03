@@ -60,80 +60,48 @@ class ReviewCreate(ReviewBase):
 
 class ReviewUpdate(BaseModel):
     """Partial update for a Review; supply only fields to change."""
-    uni: Optional[ReviewIDType] = Field(
-        None, description="Columbia UNI.", json_schema_extra={"example": "ab1234"}
+    rating: Optional[int] = Field(
+        None,
+        ge=1,
+        le=5,
+        description="A new rating for the movie (1-5).",
+        json_schema_extra={"example": 4},
     )
-    first_name: Optional[str] = Field(None, json_schema_extra={"example": "Augusta"})
-    last_name: Optional[str] = Field(None, json_schema_extra={"example": "King"})
-    email: Optional[EmailStr] = Field(None, json_schema_extra={"example": "ada@newmail.com"})
-    phone: Optional[str] = Field(None, json_schema_extra={"example": "+44 20 7946 0958"})
-    birth_date: Optional[date] = Field(None, json_schema_extra={"example": "1815-12-10"})
-
+    comment: Optional[str] = Field(
+        None,
+        description="An updated comment for the movie.",
+        json_schema_extra={"example": "Actually, it was just okay."},
+    )
 
     model_config = {
         "json_schema_extra": {
             "examples": [
-                {"first_name": "Ada", "last_name": "Byron"},
-                {"phone": "+1-415-555-0199"},
                 {
-                    "addresses": [
-                        {
-                            "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
-                            "street": "10 Downing St",
-                            "city": "London",
-                            "state": None,
-                            "postal_code": "SW1A 2AA",
-                            "country": "UK",
-                        }
-                    ]
+                    "rating": 4,
+                    "comment": "Updated my opinion - it's actually quite good!"
                 },
+                {
+                    "rating": 2
+                },
+                {
+                    "comment": "Changed my mind about this movie."
+                }
             ]
         }
     }
 
 
 class ReviewRead(ReviewBase):
-    """Server representation returned to clients."""
-    id: UUID = Field(
-        default_factory=uuid4,
-        description="Server-generated Review ID.",
-        json_schema_extra={"example": "99999999-9999-4999-8999-999999999999"},
-    )
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        description="Creation timestamp (UTC).",
-        json_schema_extra={"example": "2025-01-15T10:20:30Z"},
-    )
-    updated_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        description="Last update timestamp (UTC).",
-        json_schema_extra={"example": "2025-01-16T12:00:00Z"},
-    )
-
+    """Complete review data for reading/displaying."""
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "id": "99999999-9999-4999-8999-999999999999",
-                    "uni": "abc1234",
-                    "first_name": "Ada",
-                    "last_name": "Lovelace",
-                    "email": "ada@example.com",
-                    "phone": "+1-212-555-0199",
-                    "birth_date": "1815-12-10",
-                    "addresses": [
-                        {
-                            "id": "550e8400-e29b-41d4-a716-446655440000",
-                            "street": "123 Main St",
-                            "city": "London",
-                            "state": None,
-                            "postal_code": "SW1A 1AA",
-                            "country": "UK",
-                        }
-                    ],
-                    "created_at": "2025-01-15T10:20:30Z",
-                    "updated_at": "2025-01-16T12:00:00Z",
+                    "id": "rev12345",
+                    "rating": 5,
+                    "comment": "This movie is absolutely fantastic! Great acting and storyline.",
                 }
             ]
         }
     }
+
