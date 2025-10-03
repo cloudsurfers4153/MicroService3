@@ -93,6 +93,17 @@ class ReviewUpdate(BaseModel):
 
 class ReviewRead(ReviewBase):
     """Complete review data for reading/displaying."""
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        description="Creation timestamp (UTC).",
+        json_schema_extra={"example": "2025-01-15T10:20:30Z"},
+    )
+    updated_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        description="Last update timestamp (UTC).",
+        json_schema_extra={"example": "2025-01-16T12:00:00Z"},
+    )
+
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -100,6 +111,8 @@ class ReviewRead(ReviewBase):
                     "id": "rev12345",
                     "rating": 5,
                     "comment": "This movie is absolutely fantastic! Great acting and storyline.",
+                    "created_at": "2025-01-15T10:20:30Z",
+                    "updated_at": "2025-01-16T12:00:00Z",
                 }
             ]
         }
