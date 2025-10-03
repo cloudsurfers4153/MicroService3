@@ -19,7 +19,7 @@ port = int(os.environ.get("FASTAPIPORT", 8000))
 reviews: Dict[UUID, ReviewRead] = {}
 
 app = FastAPI(
-    title="Interaction API",
+    title="Review API",
     description="Demo FastAPI app using Pydantic v2 models for Interaction",
     version="0.1.0",
 )
@@ -61,7 +61,7 @@ def delete_student(student_id: UUID):
 # -----------------------------------------------------------------------------
 @app.get("/")
 def root():
-    return {"message": "Welcome to the Interaction API. See /docs for OpenAPI UI."}
+    return {"message": "Welcome to the Review API. See /docs for Swagger UI."}
 
 # -----------------------------------------------------------------------------
 # Entrypoint for `python main.py`
