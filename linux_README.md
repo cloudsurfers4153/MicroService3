@@ -53,7 +53,7 @@ sudo mysql
 Inside MySQL:
 
 ```sql
-CREATE DATABASE IF NOT EXISTS ms3_reviews
+CREATE DATABASE IF NOT EXISTS MicroService3
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 ```
@@ -62,7 +62,7 @@ CREATE DATABASE IF NOT EXISTS ms3_reviews
 
 ```sql
 CREATE USER 'ms3_app'@'localhost' IDENTIFIED BY 'StrongPassword123!';
-GRANT ALL PRIVILEGES ON ms3_reviews.* TO 'ms3_app'@'localhost';
+GRANT ALL PRIVILEGES ON MicroService3.* TO 'ms3_app'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 ```
@@ -70,7 +70,7 @@ EXIT;
 ### 4.3 Import schema and data
 
 ```bash
-sudo mysql ms3_reviews < /home/zh2701/MicroService3/data.sql
+sudo mysql MicroService3 < /home/zh2701/MicroService3/data.sql
 ```
 
 
@@ -80,7 +80,7 @@ sudo mysql ms3_reviews < /home/zh2701/MicroService3/data.sql
 Recommended connection string:
 
 ```
-mysql+pymysql://ms3_app:StrongPassword123!@localhost:3306/ms3_reviews
+mysql+pymysql://ms3_app:StrongPassword123!@localhost:3306/MicroService3
 ```
 
 This can be set through an environment variable or systemd service.

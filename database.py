@@ -6,11 +6,11 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 # Macbook
 # DATABASE_URL = os.getenv(
 #     "DATABASE_URL",
-#     "mysql+pymysql://root@localhost:3306/ms3_reviews",
+#     "mysql+pymysql://root@localhost:3306/MicroService3",
 # )
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "mysql+pymysql://ms3user:Pass123!@localhost:3306/ms3_reviews",
+    "mysql+pymysql://ms3user:Pass123!@localhost:3306/MicroService3",
 )
 
 

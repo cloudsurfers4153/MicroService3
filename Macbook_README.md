@@ -31,7 +31,7 @@ OpenAPI docs (Swagger UI) are available at `/docs`.
 2. Create database (if it does not exist yet):
 
    ```bash
-   mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS ms3_reviews CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+   mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS MicroService3 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
    ```
 
    > If root has no password, just press **Enter** when prompted.
@@ -39,7 +39,7 @@ OpenAPI docs (Swagger UI) are available at `/docs`.
 3. Import your existing SQL data file (schema + sample data):
 
    ```bash
-   mysql -uroot -p ms3_reviews < /Users/huangziheng/PycharmProjects/MicroService3/data.sql
+   mysql -uroot -p MicroService3 < /Users/huangziheng/PycharmProjects/MicroService3/data.sql
    ```
 
    - Adjust the path to `data.sql` if your file is in a different location.
@@ -69,21 +69,21 @@ pip install -r requirements.txt
 By default, the app connects to:
 
 ``` 
-mysql+pymysql://root@localhost:3306/ms3_reviews
+mysql+pymysql://root@localhost:3306/MicroService3
 ```
 
 You can override this by setting `DATABASE_URL`:
 
 ```bash
-export DATABASE_URL="mysql+pymysql://root@your-mysql-host:3306/ms3_reviews"
+export DATABASE_URL="mysql+pymysql://root@your-mysql-host:3306/MicroService3"
 ```
 
 Examples:
 
 - Local MySQL without password (default):  
-  `mysql+pymysql://root@localhost:3306/ms3_reviews`
+  `mysql+pymysql://root@localhost:3306/MicroService3`
 - MySQL with password:  
-  `mysql+pymysql://root:yourpassword@localhost:3306/ms3_reviews`
+  `mysql+pymysql://root:yourpassword@localhost:3306/MicroService3`
 
 ---
 
