@@ -1,10 +1,5 @@
 # MS3 – Reviews Service (Linux Deployment Guide)
-
-FastAPI + MySQL microservice running on a Linux VM (e.g., Ubuntu 22.04).
-Simple, reliable, no Docker.
-
-
-
+ 
 ## 1. Prerequisites
 
 * OS: Ubuntu 22.04 (or other Debian-based Linux)
@@ -38,6 +33,7 @@ source .venv/bin/activate
 
 pip install --upgrade pip
 pip install -r requirements.txt
+pip install cryptography
 ```
 
 
@@ -61,10 +57,20 @@ CREATE DATABASE IF NOT EXISTS MicroService3
 ### 4.2 Create app user
 
 ```sql
-CREATE USER 'ms3_app'@'localhost' IDENTIFIED BY 'StrongPassword123!';
-GRANT ALL PRIVILEGES ON MicroService3.* TO 'ms3_app'@'localhost';
+DROP USER IF EXISTS 'ms3user'@'localhost';
+
+CREATE USER 'ms3user'@'localhost'
+IDENTIFIED BY 'StrongPassword123!';
+
+GRANT ALL PRIVILEGES ON MicroService3.* TO 'ms3user'@'localhost';
+
 FLUSH PRIVILEGES;
+SELECT user, host, plugin FROM mysql.user;
 EXIT;
+```
+test login:
+```
+mysql -u ms3user -p
 ```
 
 ### 4.3 Import schema and data
@@ -80,7 +86,7 @@ sudo mysql MicroService3 < /home/zh2701/MicroService3/data.sql
 Recommended connection string:
 
 ```
-mysql+pymysql://ms3_app:StrongPassword123!@localhost:3306/MicroService3
+mysql+pymysql://ms3user:StrongPassword123!@localhost:3306/MicroService3
 ```
 
 This can be set through an environment variable or systemd service.
