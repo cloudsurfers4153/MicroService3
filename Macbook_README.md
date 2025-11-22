@@ -39,7 +39,7 @@ OpenAPI docs (Swagger UI) are available at `/docs`.
 3. Import your existing SQL data file (schema + sample data):
 
    ```bash
-   mysql -uroot -p ms3_reviews < /Users/huangziheng/PycharmProjects/ms3-reviews/data.sql
+   mysql -uroot -p ms3_reviews < /Users/huangziheng/PycharmProjects/MicroService3/data.sql
    ```
 
    - Adjust the path to `data.sql` if your file is in a different location.
@@ -52,9 +52,9 @@ OpenAPI docs (Swagger UI) are available at `/docs`.
  Install dependencies:
 
    ```bash
-conda create -n ms3-reviews python=3.11 -y
-conda activate ms3-reviews
-cd /home/zh2701/ms3-reviews/
+conda create -n MicroService3 python=3.11 -y
+conda activate MicroService3
+cd /home/zh2701/MicroService3/
  
 pip install -r requirements.txt
 

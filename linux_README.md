@@ -9,7 +9,7 @@ Simple, reliable, no Docker.
 
 * OS: Ubuntu 22.04 (or other Debian-based Linux)
 * Sudo access
-* Code directory: `/home/zh2701/ms3-reviews`
+* Code directory: `/home/zh2701/MicroService3`
 * Python 3.10+
 * Local MySQL running on the same VM
 * Service port: `8000` (Uvicorn)
@@ -31,7 +31,7 @@ sudo systemctl enable mysql
 ## 3. Create virtual environment
 
 ```bash
-cd /home/zh2701/ms3-reviews
+cd /home/zh2701/MicroService3
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -70,7 +70,7 @@ EXIT;
 ### 4.3 Import schema and data
 
 ```bash
-sudo mysql ms3_reviews < /home/zh2701/ms3-reviews/data.sql
+sudo mysql ms3_reviews < /home/zh2701/MicroService3/data.sql
 ```
 
 
@@ -90,7 +90,7 @@ This can be set through an environment variable or systemd service.
 ## 6. Test service with Uvicorn
 
 ```bash
-cd /home/zh2701/ms3-reviews
+cd /home/zh2701/MicroService3
 source .venv/bin/activate
 
 uvicorn main:app --host 0.0.0.0 --port 8000
@@ -106,39 +106,6 @@ Swagger UI:
 
 ```
 http://<server-ip>:8000/docs
-```
-
-
-
-## 7. Systemd service (background process)
-
-Create `/etc/systemd/system/ms3-reviews.service`:
-
-```ini
-[Unit]
-Description=MS3 Reviews FastAPI Service
-After=network.target mysql.service
-
-[Service]
-User=zh2701
-Group=zh2701
-WorkingDirectory=/home/zh2701/ms3-reviews
-Environment="DATABASE_URL=mysql+pymysql://ms3_app:StrongPassword123!@localhost:3306/ms3_reviews"
-Environment="PATH=/home/zh2701/ms3-reviews/.venv/bin"
-ExecStart=/home/zh2701/ms3-reviews/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable ms3-reviews
-sudo systemctl start ms3-reviews
 ```
 
 
