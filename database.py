@@ -13,9 +13,13 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 #     "DATABASE_URL",
 #     "mysql+pymysql://ms3user:StrongPassword123!@localhost:3306/MicroService3",
 # )
+# DATABASE_URL = os.getenv(
+#     "DATABASE_URL",
+#     "mysql+pymysql://ms3user:StrongPassword123!@34.170.75.146:3306/MicroService3",
+# )
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "mysql+pymysql://ms3user:StrongPassword123!@34.170.75.146:3306/MicroService3",
+    "mysql+pymysql://ms3user:StrongPassword123!@10.128.0.3:3306/MicroService3",
 )
 
 
