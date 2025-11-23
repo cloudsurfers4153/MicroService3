@@ -18,8 +18,7 @@ import models
 import schemas
 from database import Base, engine, get_db
 
-# Create tables if they do not exist yet.
-# This is safe when the table is already created by your SQL file.
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
