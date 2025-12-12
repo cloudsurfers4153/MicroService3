@@ -1,0 +1,470 @@
+openapi: 3.0.3
+info:
+  title: MS3 - Reviews 
+  description: |
+    Simple microservice for CRUD operations on movie reviews.
+    
+    ## Features
+    - Create, read, update, and delete movie reviews
+    - Filter reviews by movie, user, rating range, and creation time
+    - Pagination support for listing reviews
+    - ETag-based caching for individual review retrieval
+  version: 0.0.1
+
+tags:
+  - name: Reviews
+    description: Movie review CRUD operations
+
+paths:
+  /reviews:
+    get:
+      operationId: listReviews
+      summary: List reviews
+      description: |
+        List reviews filtered by movie, user, rating range, and creation time.
+        Supports simple pagination.
+      tags:
+        - Reviews
+      parameters:
+        - name: movie_id
+          in: query
+          description: Filter by movie ID.
+          required: false
+          schema:
+            type: integer
+          example: 1
+        - name: user_id
+          in: query
+          description: Filter by user ID.
+          required: false
+          schema:
+            type: integer
+          example: 1
+        - name: rating_min
+          in: query
+          description: Minimum rating (inclusive).
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+          example: 3
+        - name: rating_max
+          in: query
+          description: Maximum rating (inclusive).
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+          example: 5
+        - name: created_before
+          in: query
+          description: Only reviews created on or before this timestamp (ISO 8601).
+          required: false
+          schema:
+            type: string
+            format: date-time
+          example: "2025-10-10T23:59:59"
+        - name: created_after
+          in: query
+          description: Only reviews created on or after this timestamp (ISO 8601).
+          required: false
+          schema:
+            type: string
+            format: date-time
+          example: "2025-10-01T00:00:00"
+        - name: page
+          in: query
+          description: Page number (1-based).
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: page_size
+          in: query
+          description: Number of items per page.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          example: 10
+      responses:
+        '200':
+          description: Paginated list of reviews
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewListResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+    post:
+      operationId: createReview
+      summary: Create a review
+      description: Create a new review for a specific movie and user.
+      tags:
+        - Reviews
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreate'
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewRead'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+  /reviews/{review_id}:
+    get:
+      operationId: getReview
+      summary: Get a review by ID
+      description: |
+        Retrieve a single review by its ID. Supports optional ETag via
+        `If-None-Match` header, returning `304 Not Modified` when matched.
+      tags:
+        - Reviews
+      parameters:
+        - name: review_id
+          in: path
+          description: ID of the review to retrieve.
+          required: true
+          schema:
+            type: integer
+          example: 1
+        - name: If-None-Match
+          in: header
+          description: ETag value for conditional request. If it matches the current ETag, returns 304.
+          required: false
+          schema:
+            type: string
+          example: 'W/"a1b2c3d4e5f6g7h8"'
+      responses:
+        '200':
+          description: Review found
+          headers:
+            ETag:
+              description: Weak ETag for caching based on review id and updated_at timestamp.
+              schema:
+                type: string
+              example: 'W/"a1b2c3d4e5f6g7h8"'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewRead'
+        '304':
+          description: Not Modified - ETag matched, use cached version
+          headers:
+            ETag:
+              description: Weak ETag for caching.
+              schema:
+                type: string
+              example: 'W/"a1b2c3d4e5f6g7h8"'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+              example:
+                detail: Review not found.
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+    put:
+      operationId: updateReview
+      summary: Update a review
+      description: Update the rating and/or comment of an existing review.
+      tags:
+        - Reviews
+      parameters:
+        - name: review_id
+          in: path
+          description: ID of the review to update.
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewUpdate'
+      responses:
+        '200':
+          description: Review updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewRead'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+              example:
+                detail: Review not found.
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+    delete:
+      operationId: deleteReview
+      summary: Delete a review
+      description: Delete an existing review by its ID.
+      tags:
+        - Reviews
+      parameters:
+        - name: review_id
+          in: path
+          description: ID of the review to delete.
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '204':
+          description: Review deleted successfully (no content)
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+              example:
+                detail: Review not found.
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+components:
+  schemas:
+    ReviewCreate:
+      type: object
+      description: Request body for creating a new review.
+      required:
+        - movie_id
+        - user_id
+        - rating
+        - comment
+      properties:
+        movie_id:
+          type: integer
+          description: ID of the movie being reviewed.
+          example: 1
+        user_id:
+          type: integer
+          description: ID of the user who wrote the review.
+          example: 1
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Numeric rating from 1 (worst) to 5 (best).
+          example: 5
+        comment:
+          type: string
+          description: Free text comment for the review.
+          example: 'I was not prepared for how hard "Tötet nicht mehr" would hit me; watching the father break after his son is killed during a peaceful reading made the anti death penalty message feel painfully real.'
+      example:
+        movie_id: 1
+        user_id: 1
+        rating: 5
+        comment: 'I was not prepared for how hard "Tötet nicht mehr" would hit me; watching the father break after his son is killed during a peaceful reading made the anti death penalty message feel painfully real.'
+
+    ReviewUpdate:
+      type: object
+      description: Request body for updating an existing review (rating and/or comment).
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: New rating from 1 (worst) to 5 (best).
+          example: 4
+        comment:
+          type: string
+          description: Updated comment for the review.
+          example: '"Tötet nicht mehr" stays with me even more after a second viewing.'
+      example:
+        rating: 4
+        comment: '"Tötet nicht mehr" stays with me even more after a second viewing.'
+
+    ReviewRead:
+      type: object
+      description: Response model for a single review.
+      required:
+        - id
+        - movie_id
+        - user_id
+        - rating
+        - comment
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          description: Review ID.
+          example: 1
+        movie_id:
+          type: integer
+          description: ID of the movie being reviewed.
+          example: 1
+        user_id:
+          type: integer
+          description: ID of the user who wrote the review.
+          example: 1
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Numeric rating from 1 (worst) to 5 (best).
+          example: 5
+        comment:
+          type: string
+          description: Free text comment for the review.
+          example: 'I was not prepared for how hard "Tötet nicht mehr" would hit me; watching the father break after his son is killed during a peaceful reading made the anti death penalty message feel painfully real.'
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp.
+          example: "2025-10-01T20:00:00"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp.
+          example: "2025-10-01T20:00:00"
+      example:
+        id: 1
+        movie_id: 1
+        user_id: 1
+        rating: 5
+        comment: 'I was not prepared for how hard "Tötet nicht mehr" would hit me; watching the father break after his son is killed during a peaceful reading made the anti death penalty message feel painfully real.'
+        created_at: "2025-10-01T20:00:00"
+        updated_at: "2025-10-01T20:00:00"
+
+    ReviewListResponse:
+      type: object
+      description: Paginated list of reviews.
+      required:
+        - total
+        - page
+        - page_size
+        - items
+      properties:
+        total:
+          type: integer
+          description: Total number of reviews matching the filters.
+          example: 40
+        page:
+          type: integer
+          minimum: 1
+          description: Current page number (1-based).
+          example: 1
+        page_size:
+          type: integer
+          minimum: 1
+          description: Number of items per page.
+          example: 10
+        items:
+          type: array
+          description: List of review items for this page.
+          items:
+            $ref: '#/components/schemas/ReviewRead'
+      example:
+        total: 2
+        page: 1
+        page_size: 2
+        items:
+          - id: 1
+            movie_id: 1
+            user_id: 1
+            rating: 5
+            comment: 'I was not prepared for how hard "Tötet nicht mehr" would hit me; watching the father break after his son is killed during a peaceful reading made the anti death penalty message feel painfully real.'
+            created_at: "2025-10-01T20:00:00"
+            updated_at: "2025-10-01T20:00:00"
+          - id: 2
+            movie_id: 1
+            user_id: 2
+            rating: 3
+            comment: '"Tötet nicht mehr" is clearly important and the images are powerful, but the slow expressionist pacing and heavy melodrama kept me at a distance even while I admired what it was saying.'
+            created_at: "2025-10-01T22:00:00"
+            updated_at: "2025-10-01T22:00:00"
+
+    HTTPError:
+      type: object
+      description: HTTP error response.
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Error message.
+          example: Review not found.
+
+    HTTPValidationError:
+      type: object
+      description: Validation error response from FastAPI.
+      properties:
+        detail:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+
+    ValidationError:
+      type: object
+      description: Individual validation error detail.
+      required:
+        - loc
+        - msg
+        - type
+      properties:
+        loc:
+          type: array
+          description: Location of the error (path to the invalid field).
+          items:
+            oneOf:
+              - type: string
+              - type: integer
+          example:
+            - body
+            - rating
+        msg:
+          type: string
+          description: Human-readable error message.
+          example: "ensure this value is greater than or equal to 1"
+        type:
+          type: string
+          description: Error type identifier.
+          example: "value_error.number.not_ge"
+          
